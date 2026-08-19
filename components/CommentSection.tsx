@@ -41,7 +41,7 @@ export function CommentSection({ folderId }: CommentSectionProps) {
         .from('comments')
         .select(`
           *,
-          profiles:user_id (full_name, avatar_url, email)
+          profiles (full_name, avatar_url, email)
         `)
         .eq('folder_id', folderId)
         .order('created_at', { ascending: true });

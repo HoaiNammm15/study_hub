@@ -52,7 +52,7 @@ export default function HomePage() {
         .from('folders')
         .select(`
           *,
-          profiles:user_id (full_name, avatar_url, email),
+          profiles (full_name, avatar_url, email),
           documents (count)
         `)
         .order('created_at', { ascending: false });
@@ -61,9 +61,24 @@ export default function HomePage() {
         query = query.eq('subject', selectedSubject);
       }
 
-      const { data, error } = await query;
-      if (error) throw error;
-      setFolders(data || []);
+      let { data, error } = await query;
+
+      if (error) {
+        console.warn('Detailed query error, falling back to simple query:', error);
+        let fallbackQuery = supabase
+          .from('folders')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (selectedSubject !== 'all') {
+          fallbackQuery = fallbackQuery.eq('subject', selectedSubject);
+        }
+
+        const { data: fallbackData } = await fallbackQuery;
+        setFolders(fallbackData || []);
+      } else {
+        setFolders(data || []);
+      }
     } catch (err) {
       console.error('Error fetching folders:', err);
     } finally {

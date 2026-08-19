@@ -76,7 +76,7 @@ export default function FolderDetailPage() {
         .from('folders')
         .select(`
           *,
-          profiles:user_id (full_name, avatar_url, email)
+          profiles (full_name, avatar_url, email)
         `)
         .eq('id', folderId)
         .single();
