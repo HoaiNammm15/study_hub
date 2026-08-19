@@ -17,6 +17,7 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
   const [note, setNote] = useState('');
   const [expertName, setExpertName] = useState('Mr. Minh');
   const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [tagsInput, setTagsInput] = useState('japan, top1, chill');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,23 +43,40 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
       return;
     }
 
-    const tagsArray = tagsInput
-      .split(',')
-      .map((t) => t.trim().toLowerCase())
-      .filter((t) => t.length > 0);
-
-    // Pack metadata into JSON string stored in note column
-    const notePayload = JSON.stringify({
-      text: note.trim() || 'Mã phim được tuyển chọn cực kỳ chất lượng!',
-      expert_name: expertName.trim() || 'Mr. Minh',
-      expert_image: imageUrl.trim() || PRESET_AVATARS[0].url,
-    });
-
     try {
       setLoading(true);
       setError(null);
       const supabase = createClient();
 
+      let finalImageUrl = imageUrl.trim();
+
+      // If user uploaded an image file from their machine, upload to Supabase storage
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileNameClean = imageFile.name.replace(/[^a-zA-Z0-9]/g, '_');
+        const filePath = `experts/${user.id}/${Date.now()}_${fileNameClean}.${fileExt}`;
+
+        const { data: storageData, error: uploadErr } = await supabase.storage
+          .from('documents')
+          .upload(filePath, imageFile, { upsert: true });
+
+        if (!uploadErr && storageData) {
+          const { data: publicUrlData } = supabase.storage
+            .from('documents')
+            .getPublicUrl(storageData.path);
+          finalImageUrl = publicUrlData.publicUrl;
+        }
+      }
+
+      const tagsArray = tagsInput
+        .split(',')
+        .map((t) => t.trim().toLowerCase())
+        .filter((t) => t.length > 0);
+
+      // Pack metadata into JSON string stored in note column
+      const notePayload = JSON.stringify({
+        text: note.trim() || 'Mã phim được tuyển chọn cực kỳ chất lượng!',
+        expert_name: expertName.trim() || 'Mr. Minh',
       const { error: insertError } = await supabase.from('stress_relief_codes').insert([
         {
           user_id: user.id,
@@ -146,11 +164,32 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
 
           <div>
             <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
-              URL Ảnh Nhân Vật Tách Phông (PNG Transparent)
+              Tải Ảnh Chuyên Gia / Nhân Vật Từ Máy Trực Tiếp
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                if (e.target.files && e.target.files[0]) {
+                  setImageFile(e.target.files[0]);
+                }
+              }}
+              className="w-full bg-gray-900/90 border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-300 file:mr-3 file:py-1 py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-pink-600 file:text-white hover:file:bg-pink-500 cursor-pointer"
+            />
+            {imageFile && (
+              <p className="text-[11px] text-pink-400 font-medium mt-1">
+                ✓ Đã chọn file: {imageFile.name}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+              Hoặc Dán URL Ảnh Nhân Vật (PNG Transparent / Online Link)
             </label>
             <input
               type="url"
-              placeholder="https://.../nhan_vat_tach_phong.png (Để trống sẽ dùng ảnh mặc định)"
+              placeholder="https://.../nhan_vat_tach_phong.png"
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               className="w-full bg-gray-900/90 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-pink-500 placeholder-gray-500"
