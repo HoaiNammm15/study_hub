@@ -214,13 +214,19 @@ export default function SecretPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCodes.map((item, index) => {
             const isCopied = copiedId === item.id;
-            // Chuyên gia đề xuất mẫu ngẫu nhiên nổi tiếng nếu chưa ghi rõ
-            const avatarList = [
-              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-              'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
-              'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&auto=format&fit=crop&q=80',
-            ];
-            const expertAvatar = avatarList[index % avatarList.length];
+
+            // Parse metadata or fallback
+            let parsedMeta = {
+              text: item.note || 'Mã phim được tuyển chọn cực kỳ chất lượng!',
+              expert_name: 'Mr. Minh',
+              expert_image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
+            };
+
+            if (item.note && item.note.startsWith('{')) {
+              try {
+                parsedMeta = JSON.parse(item.note);
+              } catch (e) {}
+            }
 
             return (
               <div
@@ -228,10 +234,10 @@ export default function SecretPage() {
                 className="group glass-card rounded-2xl p-6 flex flex-col justify-between space-y-4 border border-gray-800/80 relative overflow-hidden hover:border-pink-500/40 transition-all hover:shadow-xl hover:shadow-pink-500/10"
               >
                 {/* Background Character Mascot / Expert Glow */}
-                <div className="absolute -right-4 -bottom-4 w-28 h-28 opacity-10 group-hover:opacity-25 transition-opacity pointer-events-none">
+                <div className="absolute -right-4 -bottom-4 w-28 h-28 opacity-15 group-hover:opacity-30 transition-opacity pointer-events-none">
                   <img
-                    src={expertAvatar}
-                    alt="Expert mascot"
+                    src={parsedMeta.expert_image}
+                    alt={parsedMeta.expert_name}
                     className="w-full h-full object-cover rounded-full filter drop-shadow-[0_0_12px_rgba(236,72,153,0.8)]"
                   />
                 </div>
@@ -273,16 +279,16 @@ export default function SecretPage() {
                   {/* Expert Recommendation Note */}
                   <div className="flex items-start gap-2.5 pt-1">
                     <img
-                      src={expertAvatar}
-                      alt="Chuyên gia"
+                      src={parsedMeta.expert_image}
+                      alt={parsedMeta.expert_name}
                       className="w-7 h-7 rounded-full object-cover ring-2 ring-pink-500/40 shrink-0 mt-0.5"
                     />
                     <div>
                       <p className="text-[11px] font-bold text-pink-300 flex items-center gap-1">
-                        ⭐ Chuyên Gia Đề Xuất
+                        ⭐ {parsedMeta.expert_name} Đề Xuất
                       </p>
                       <p className="text-xs text-gray-300 italic leading-relaxed">
-                        {item.note || 'Mã phim cực kỳ chất lượng, giải tỏa stress hiệu quả.'}
+                        &quot;Tôi đề xuất code này {item.code_text}&quot; — {parsedMeta.text}
                       </p>
                     </div>
                   </div>
@@ -296,6 +302,47 @@ export default function SecretPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* FLOATING RIGHT SIDEBAR EXPERT BANNER (MR. MINH SPEECH BUBBLE) */}
+      {filteredCodes.length > 0 && (
+        <div className="fixed bottom-6 right-6 z-40 hidden lg:flex items-end gap-3 max-w-sm animate-in fade-in slide-in-from-bottom-5 duration-300 pointer-events-auto">
+          {/* Speech Bubble */}
+          <div className="glass-panel p-4 rounded-2xl rounded-br-none border border-pink-500/40 bg-gray-950/90 shadow-2xl shadow-pink-500/20 text-xs text-gray-100 space-y-1.5 relative">
+            <div className="flex items-center justify-between gap-2 border-b border-gray-800 pb-1">
+              <span className="font-extrabold text-pink-400 flex items-center gap-1">
+                🔥 Hot Recommend
+              </span>
+              <span className="text-[10px] text-gray-400">Mr. Minh</span>
+            </div>
+            <p className="font-semibold text-white leading-relaxed">
+              &quot;Tôi đề xuất mã phim mới nhất này: <span className="text-pink-400 font-mono font-bold underline">{filteredCodes[0].code_text}</span>&quot;
+            </p>
+            <div className="flex justify-end pt-1">
+              <button
+                onClick={() => handleCopy(filteredCodes[0].id, filteredCodes[0].code_text)}
+                className="px-2.5 py-1 bg-pink-600 hover:bg-pink-500 text-white rounded-lg text-[10px] font-bold transition-all shadow"
+              >
+                {copiedId === filteredCodes[0].id ? 'Đã Copy!' : 'Copy Ngay'}
+              </button>
+            </div>
+          </div>
+
+          {/* Character Cutout Avatar */}
+          <div className="relative group shrink-0">
+            <div className="w-16 h-16 rounded-2xl overflow-hidden ring-4 ring-pink-500/50 shadow-xl shadow-pink-500/30 group-hover:scale-105 transition-transform bg-gray-900">
+              <img
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"
+                alt="Mr. Minh Expert"
+                className="w-full h-full object-cover filter brightness-110"
+              />
+            </div>
+            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-pink-500 border-2 border-gray-950"></span>
+            </span>
+          </div>
         </div>
       )}
 

@@ -15,11 +15,18 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
   const { user } = useAuth();
   const [codeText, setCodeText] = useState('');
   const [note, setNote] = useState('');
-  const [expertName, setExpertName] = useState('');
+  const [expertName, setExpertName] = useState('Mr. Minh');
   const [imageUrl, setImageUrl] = useState('');
-  const [tagsInput, setTagsInput] = useState('japan, hd, top1');
+  const [tagsInput, setTagsInput] = useState('japan, top1, chill');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Preset transparent PNG characters / avatars
+  const PRESET_AVATARS = [
+    { name: 'Mr. Minh (Chuyên Gia Đêm Khing)', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80' },
+    { name: 'Chuyên Gia Yua', url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&auto=format&fit=crop&q=80' },
+    { name: 'Giáo Sơ Eimi', url: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=300&auto=format&fit=crop&q=80' },
+  ];
 
   if (!isOpen) return null;
 
@@ -40,6 +47,13 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
       .map((t) => t.trim().toLowerCase())
       .filter((t) => t.length > 0);
 
+    // Pack metadata into JSON string stored in note column
+    const notePayload = JSON.stringify({
+      text: note.trim() || 'Mã phim được tuyển chọn cực kỳ chất lượng!',
+      expert_name: expertName.trim() || 'Mr. Minh',
+      expert_image: imageUrl.trim() || PRESET_AVATARS[0].url,
+    });
+
     try {
       setLoading(true);
       setError(null);
@@ -49,7 +63,7 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
         {
           user_id: user.id,
           code_text: codeText.trim().toUpperCase(),
-          note: note.trim() || (expertName.trim() ? `Đề xuất bởi: ${expertName.trim()}` : null),
+          note: notePayload,
           tags: tagsArray.length > 0 ? tagsArray : ['hot'],
         },
       ]);
@@ -58,9 +72,9 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
 
       setCodeText('');
       setNote('');
-      setExpertName('');
+      setExpertName('Mr. Minh');
       setImageUrl('');
-      setTagsInput('japan, hd, top1');
+      setTagsInput('japan, top1, chill');
       onSuccess();
       onClose();
     } catch (err: any) {
@@ -118,13 +132,27 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
 
           <div>
             <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
-              Tên Chuyên Gia / Diễn Viên Đề Xuất (Tùy chọn)
+              Tên Chuyên Gia / Nhân Vật Đề Xuất *
             </label>
             <input
               type="text"
-              placeholder="VD: Chuyên gia Yua Mikami, Eimi Fukada..."
+              required
+              placeholder="VD: Mr. Minh, Chuyên gia Yua, Giáo sư Eimi..."
               value={expertName}
               onChange={(e) => setExpertName(e.target.value)}
+              className="w-full bg-gray-900/90 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-pink-500 placeholder-gray-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+              URL Ảnh Nhân Vật Tách Phông (PNG Transparent)
+            </label>
+            <input
+              type="url"
+              placeholder="https://.../nhan_vat_tach_phong.png (Để trống sẽ dùng ảnh mặc định)"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
               className="w-full bg-gray-900/90 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-pink-500 placeholder-gray-500"
             />
           </div>
