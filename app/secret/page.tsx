@@ -212,16 +212,32 @@ export default function SecretPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCodes.map((item) => {
+          {filteredCodes.map((item, index) => {
             const isCopied = copiedId === item.id;
+            // Chuyên gia đề xuất mẫu ngẫu nhiên nổi tiếng nếu chưa ghi rõ
+            const avatarList = [
+              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+              'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+              'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&auto=format&fit=crop&q=80',
+            ];
+            const expertAvatar = avatarList[index % avatarList.length];
 
             return (
               <div
                 key={item.id}
-                className="group glass-card rounded-2xl p-6 flex flex-col justify-between space-y-4 border border-gray-800/80 relative overflow-hidden hover:border-pink-500/30 transition-all"
+                className="group glass-card rounded-2xl p-6 flex flex-col justify-between space-y-4 border border-gray-800/80 relative overflow-hidden hover:border-pink-500/40 transition-all hover:shadow-xl hover:shadow-pink-500/10"
               >
+                {/* Background Character Mascot / Expert Glow */}
+                <div className="absolute -right-4 -bottom-4 w-28 h-28 opacity-10 group-hover:opacity-25 transition-opacity pointer-events-none">
+                  <img
+                    src={expertAvatar}
+                    alt="Expert mascot"
+                    className="w-full h-full object-cover rounded-full filter drop-shadow-[0_0_12px_rgba(236,72,153,0.8)]"
+                  />
+                </div>
+
                 {/* Code text block */}
-                <div className="space-y-3">
+                <div className="space-y-3 relative z-10">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       {item.tags?.map((tag, idx) => (
@@ -237,7 +253,7 @@ export default function SecretPage() {
                   </div>
 
                   {/* Main Code Highlight */}
-                  <div className="bg-gray-950/90 rounded-xl p-4 border border-gray-800/80 flex items-center justify-between group-hover:border-pink-500/40 transition-colors">
+                  <div className="bg-gray-950/90 rounded-xl p-4 border border-gray-800/80 flex items-center justify-between group-hover:border-pink-500/40 transition-colors shadow-inner">
                     <span className="text-base font-mono font-extrabold text-pink-400 tracking-wider">
                       {item.code_text}
                     </span>
@@ -254,17 +270,28 @@ export default function SecretPage() {
                     </button>
                   </div>
 
-                  {item.note && (
-                    <p className="text-xs text-gray-300 italic leading-relaxed">
-                      💬 {item.note}
-                    </p>
-                  )}
+                  {/* Expert Recommendation Note */}
+                  <div className="flex items-start gap-2.5 pt-1">
+                    <img
+                      src={expertAvatar}
+                      alt="Chuyên gia"
+                      className="w-7 h-7 rounded-full object-cover ring-2 ring-pink-500/40 shrink-0 mt-0.5"
+                    />
+                    <div>
+                      <p className="text-[11px] font-bold text-pink-300 flex items-center gap-1">
+                        ⭐ Chuyên Gia Đề Xuất
+                      </p>
+                      <p className="text-xs text-gray-300 italic leading-relaxed">
+                        {item.note || 'Mã phim cực kỳ chất lượng, giải tỏa stress hiệu quả.'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="pt-3 border-t border-gray-800/80 flex items-center justify-between text-[11px] text-gray-400 font-medium">
+                <div className="pt-3 border-t border-gray-800/80 flex items-center justify-between text-[11px] text-gray-400 font-medium relative z-10">
                   <span>{isCopied ? 'Đã lưu vào Clipboard!' : '1-Touch Copy ready'}</span>
-                  <span className="text-pink-400/80 font-mono">Secret Code</span>
+                  <span className="text-pink-400/80 font-mono">Verified Code</span>
                 </div>
               </div>
             );

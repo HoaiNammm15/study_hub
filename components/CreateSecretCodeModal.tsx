@@ -15,7 +15,9 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
   const { user } = useAuth();
   const [codeText, setCodeText] = useState('');
   const [note, setNote] = useState('');
-  const [tagsInput, setTagsInput] = useState('japan, hd');
+  const [expertName, setExpertName] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [tagsInput, setTagsInput] = useState('japan, hd, top1');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,7 +49,7 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
         {
           user_id: user.id,
           code_text: codeText.trim().toUpperCase(),
-          note: note.trim() || null,
+          note: note.trim() || (expertName.trim() ? `Đề xuất bởi: ${expertName.trim()}` : null),
           tags: tagsArray.length > 0 ? tagsArray : ['hot'],
         },
       ]);
@@ -56,7 +58,9 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
 
       setCodeText('');
       setNote('');
-      setTagsInput('japan, hd');
+      setExpertName('');
+      setImageUrl('');
+      setTagsInput('japan, hd, top1');
       onSuccess();
       onClose();
     } catch (err: any) {
@@ -114,11 +118,24 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
 
           <div>
             <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
-              Ghi chú ngắn / Đánh giá
+              Tên Chuyên Gia / Diễn Viên Đề Xuất (Tùy chọn)
             </label>
             <input
               type="text"
-              placeholder="VD: Bản HD siêu nét, cực hay cho anh em chill đêm..."
+              placeholder="VD: Chuyên gia Yua Mikami, Eimi Fukada..."
+              value={expertName}
+              onChange={(e) => setExpertName(e.target.value)}
+              className="w-full bg-gray-900/90 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-pink-500 placeholder-gray-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+              Ghi chú ngắn / Lý do đề xuất
+            </label>
+            <input
+              type="text"
+              placeholder="VD: Siêu phẩm kịch bản đỉnh cao, đùa vui giải trí nhẹ nhàng..."
               value={note}
               onChange={(e) => setNote(e.target.value)}
               className="w-full bg-gray-900/90 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-pink-500 placeholder-gray-500"
