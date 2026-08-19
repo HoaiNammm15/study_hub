@@ -15,7 +15,7 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
   const { user } = useAuth();
   const [codeText, setCodeText] = useState('');
   const [note, setNote] = useState('');
-  const [tagsInput, setTagsInput] = useState('funny, code');
+  const [tagsInput, setTagsInput] = useState('japan, hd');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,7 +29,7 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
     }
 
     if (!codeText.trim()) {
-      setError('Nội dung mã code / text không được để trống.');
+      setError('Mã code không được để trống.');
       return;
     }
 
@@ -46,9 +46,9 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
       const { error: insertError } = await supabase.from('stress_relief_codes').insert([
         {
           user_id: user.id,
-          code_text: codeText.trim(),
+          code_text: codeText.trim().toUpperCase(),
           note: note.trim() || null,
-          tags: tagsArray.length > 0 ? tagsArray : ['funny'],
+          tags: tagsArray.length > 0 ? tagsArray : ['hot'],
         },
       ]);
 
@@ -56,7 +56,7 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
 
       setCodeText('');
       setNote('');
-      setTagsInput('funny, code');
+      setTagsInput('japan, hd');
       onSuccess();
       onClose();
     } catch (err: any) {
@@ -69,16 +69,16 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg glass-panel rounded-2xl p-6 border border-purple-500/30 shadow-2xl">
+      <div className="relative w-full max-w-lg glass-panel rounded-2xl p-6 border border-pink-500/30 shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-800">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-purple-600/20 text-purple-400 rounded-xl border border-purple-500/30">
+            <div className="p-2.5 bg-pink-600/20 text-pink-400 rounded-xl border border-pink-500/30">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">Đóng Góp Secret Code / Text Giải Trí</h3>
-              <p className="text-xs text-gray-400">Chia sẻ đoạn code vui, câu nói hack não hoặc tip thư giãn</p>
+              <h3 className="text-lg font-bold text-white">Thêm Secret Code Mới</h3>
+              <p className="text-xs text-gray-400">Lưu trữ mã code giải trí cá nhân & chia sẻ cộng đồng</p>
             </div>
           </div>
           <button
@@ -100,28 +100,28 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
             <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
-              Nội dung Code / Text thuần *
+              Mã Secret Code *
             </label>
-            <textarea
-              rows={4}
+            <input
+              type="text"
               required
-              placeholder="VD: console.log('Học không chơi đánh rơi tuổi trẻ...'); hoặc sudo rm -rf /stress"
+              placeholder="VD: SSIS-888, MIDE-666, STARS-999..."
               value={codeText}
               onChange={(e) => setCodeText(e.target.value)}
-              className="w-full bg-gray-950/90 border border-gray-800 rounded-xl p-3 text-sm font-mono text-purple-300 focus:outline-none focus:border-purple-500 placeholder-gray-600 resize-none"
+              className="w-full bg-gray-950/90 border border-gray-800 rounded-xl px-4 py-2.5 text-sm font-mono font-bold text-pink-400 focus:outline-none focus:border-pink-500 placeholder-gray-600 uppercase"
             />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
-              Ghi chú ngắn / Ý nghĩa
+              Ghi chú ngắn / Đánh giá
             </label>
             <input
               type="text"
-              placeholder="VD: Chữa lành khi code bị bug, Đặt làm trạng thái..."
+              placeholder="VD: Bản HD siêu nét, cực hay cho anh em chill đêm..."
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              className="w-full bg-gray-900/90 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-purple-500 placeholder-gray-500"
+              className="w-full bg-gray-900/90 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-pink-500 placeholder-gray-500"
             />
           </div>
 
@@ -131,10 +131,10 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
             </label>
             <input
               type="text"
-              placeholder="funny, code, quote, meme"
+              placeholder="japan, hd, hot, trending"
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
-              className="w-full bg-gray-900/90 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-purple-500 placeholder-gray-500"
+              className="w-full bg-gray-900/90 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-pink-500 placeholder-gray-500"
             />
           </div>
 
@@ -150,10 +150,10 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
             <button
               type="submit"
               disabled={loading || !codeText.trim()}
-              className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-lg shadow-purple-600/20 transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-lg shadow-pink-600/20 transition-all disabled:opacity-50"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {loading ? 'Đang lưu...' : 'Thêm Secret Code'}
+              {loading ? 'Đang lưu...' : 'Lưu Mã Secret Code'}
             </button>
           </div>
         </form>
