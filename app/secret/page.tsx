@@ -88,13 +88,13 @@ export default function SecretPage() {
 
       if (error) {
         console.error('Error fetching secret codes:', error);
-        setCodes(SAMPLE_SECRET_CODES);
+        setCodes([]);
       } else {
-        setCodes(data && data.length > 0 ? data : SAMPLE_SECRET_CODES);
+        setCodes(data || []);
       }
     } catch (err) {
       console.error(err);
-      setCodes(SAMPLE_SECRET_CODES);
+      setCodes([]);
     } finally {
       setLoading(false);
     }
