@@ -162,38 +162,63 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
-              Tải Ảnh Chuyên Gia / Nhân Vật Từ Máy Trực Tiếp
+          {/* Upload Image Section */}
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider">
+              Ảnh Chuyên Gia / Nhân Vật * (Tải Từ Thiết Bị)
             </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  setImageFile(e.target.files[0]);
-                }
-              }}
-              className="w-full bg-gray-900/90 border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-300 file:mr-3 file:py-1 py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-pink-600 file:text-white hover:file:bg-pink-500 cursor-pointer"
-            />
-            {imageFile && (
-              <p className="text-[11px] text-pink-400 font-medium mt-1">
-                ✓ Đã chọn file: {imageFile.name}
-              </p>
-            )}
-          </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
-              Hoặc Dán URL Ảnh Nhân Vật (PNG Transparent / Online Link)
-            </label>
-            <input
-              type="url"
-              placeholder="https://.../nhan_vat_tach_phong.png"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full bg-gray-900/90 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-pink-500 placeholder-gray-500"
-            />
+            <div className="relative border-2 border-dashed border-pink-500/40 hover:border-pink-500 bg-gray-950/60 rounded-2xl p-4 text-center transition-all group cursor-pointer">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setImageFile(e.target.files[0]);
+                  }
+                }}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              />
+              
+              {imageFile ? (
+                <div className="flex items-center justify-center gap-3">
+                  <img
+                    src={URL.createObjectURL(imageFile)}
+                    alt="Preview"
+                    className="w-12 h-12 rounded-xl object-cover ring-2 ring-pink-500"
+                  />
+                  <div className="text-left">
+                    <p className="text-xs font-bold text-white truncate max-w-[200px]">
+                      {imageFile.name}
+                    </p>
+                    <p className="text-[10px] text-emerald-400 font-semibold">
+                      ✓ Đã chọn từ thiết bị (Click để đổi ảnh khác)
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center space-y-1">
+                  <div className="p-2.5 bg-pink-600/20 text-pink-400 rounded-xl group-hover:bg-pink-600 group-hover:text-white transition-all">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <p className="text-xs font-bold text-gray-200">
+                    Bấm để chọn <span className="text-pink-400">Ảnh từ máy tính / Điện thoại</span>
+                  </p>
+                  <p className="text-[10px] text-gray-500">Hỗ trợ ảnh PNG tách phông, JPG, WebP</p>
+                </div>
+              )}
+            </div>
+
+            {/* Optional URL Fallback */}
+            <div className="pt-1">
+              <input
+                type="url"
+                placeholder="Hoặc dán URL ảnh online (https://.../anh.png)"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                className="w-full bg-gray-900/60 border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-pink-500 placeholder-gray-600"
+              />
+            </div>
           </div>
 
           <div>
