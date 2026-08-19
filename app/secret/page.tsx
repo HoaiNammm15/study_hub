@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
 import { CreateSecretCodeModal } from '@/components/CreateSecretCodeModal';
+import { AuthModal } from '@/components/AuthModal';
 import { formatDate } from '@/lib/utils';
 import {
   Sparkles,
@@ -12,10 +13,8 @@ import {
   Plus,
   Search,
   Lock,
-  Tag,
-  Code2,
   Smile,
-  Terminal,
+  LogIn,
 } from 'lucide-react';
 
 interface SecretCodeItem {
@@ -63,12 +62,13 @@ const SAMPLE_SECRET_CODES = [
 ];
 
 export default function SecretPage() {
-  const { user, loading: authLoading, signInWithGoogle } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [codes, setCodes] = useState<SecretCodeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const fetchCodes = useCallback(async () => {
     if (!user) {
@@ -135,15 +135,17 @@ export default function SecretPage() {
         <div>
           <h2 className="text-2xl font-bold text-white">Khu Vực Riêng Tư (Secret Zone)</h2>
           <p className="text-sm text-gray-300 mt-2 leading-relaxed">
-            Góc Stress Relief Codes chứa các câu lệnh giải trí, meme code và thủ thuật độc quyền chỉ dành riêng cho sinh viên đã đăng nhập.
+            Góc Stress Relief Codes chứa các câu lệnh giải trí, meme code và thủ thuật độc quyền chỉ dành riêng cho tài khoản đã đăng nhập.
           </p>
         </div>
         <button
-          onClick={signInWithGoogle}
+          onClick={() => setIsAuthModalOpen(true)}
           className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-2xl text-sm transition-all shadow-lg shadow-purple-600/30"
         >
-          Đăng nhập với Google để mở khóa
+          <LogIn className="w-4 h-4" /> Đăng Nhập / Đăng Ký Để Mở Khóa
         </button>
+
+        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       </div>
     );
   }
@@ -275,6 +277,8 @@ export default function SecretPage() {
         onClose={() => setIsModalOpen(false)}
         onSuccess={fetchCodes}
       />
+
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </div>
   );
 }

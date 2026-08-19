@@ -9,6 +9,10 @@ export async function updateSession(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
 
+  if (supabaseUrl.includes('placeholder.supabase.co')) {
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
@@ -26,22 +30,8 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // Do not run Supabase auth code if credentials are placeholder
-  if (supabaseUrl.includes('placeholder.supabase.co')) {
-    return supabaseResponse;
-  }
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Protect secret route
-  if (!user && request.nextUrl.pathname.startsWith('/secret')) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/';
-    url.searchParams.set('auth_required', 'true');
-    return NextResponse.redirect(url);
-  }
+  // Refresh user session if exists
+  await supabase.auth.getUser();
 
   return supabaseResponse;
 }
