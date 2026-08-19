@@ -77,6 +77,9 @@ export function CreateSecretCodeModal({ isOpen, onClose, onSuccess }: CreateSecr
       const notePayload = JSON.stringify({
         text: note.trim() || 'Mã phim được tuyển chọn cực kỳ chất lượng!',
         expert_name: expertName.trim() || 'Mr. Minh',
+        expert_image: finalImageUrl || PRESET_AVATARS[0].url,
+      });
+
       const { error: insertError } = await supabase.from('stress_relief_codes').insert([
         {
           user_id: user.id,
