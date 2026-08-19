@@ -74,10 +74,7 @@ export default function FolderDetailPage() {
       // Fetch folder metadata
       const { data: folderData, error: folderError } = await supabase
         .from('folders')
-        .select(`
-          *,
-          profiles (full_name, avatar_url, email)
-        `)
+        .select('*')
         .eq('id', folderId)
         .single();
 

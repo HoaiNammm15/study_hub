@@ -39,10 +39,7 @@ export function CommentSection({ folderId }: CommentSectionProps) {
       const supabase = createClient();
       const { data, error } = await supabase
         .from('comments')
-        .select(`
-          *,
-          profiles (full_name, avatar_url, email)
-        `)
+        .select('*')
         .eq('folder_id', folderId)
         .order('created_at', { ascending: true });
 

@@ -50,35 +50,18 @@ export default function HomePage() {
 
       let query = supabase
         .from('folders')
-        .select(`
-          *,
-          profiles (full_name, avatar_url, email),
-          documents (count)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (selectedSubject !== 'all') {
         query = query.eq('subject', selectedSubject);
       }
 
-      let { data, error } = await query;
-
+      const { data, error } = await query;
       if (error) {
-        console.warn('Detailed query error, falling back to simple query:', error);
-        let fallbackQuery = supabase
-          .from('folders')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (selectedSubject !== 'all') {
-          fallbackQuery = fallbackQuery.eq('subject', selectedSubject);
-        }
-
-        const { data: fallbackData } = await fallbackQuery;
-        setFolders(fallbackData || []);
-      } else {
-        setFolders(data || []);
+        console.error('Error fetching folders:', error);
       }
+      setFolders(data || []);
     } catch (err) {
       console.error('Error fetching folders:', err);
     } finally {
