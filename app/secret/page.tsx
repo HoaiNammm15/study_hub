@@ -71,6 +71,7 @@ export default function SecretPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [hoveredCodeId, setHoveredCodeId] = useState<string | null>(null);
 
   const fetchCodes = useCallback(async () => {
     if (!user) {
@@ -231,10 +232,11 @@ export default function SecretPage() {
             return (
               <div
                 key={item.id}
-                className="group glass-card rounded-2xl p-6 flex flex-col justify-between space-y-4 border border-gray-800/80 relative overflow-hidden hover:border-pink-500/40 transition-all hover:shadow-xl hover:shadow-pink-500/10"
+                onMouseEnter={() => setHoveredCodeId(item.id)}
+                className="group glass-card rounded-2xl p-6 flex flex-col justify-between space-y-4 border border-gray-800/80 relative overflow-hidden hover:border-pink-500/40 transition-all hover:shadow-xl hover:shadow-pink-500/10 cursor-pointer"
               >
                 {/* Background Character Mascot / Expert Glow */}
-                <div className="absolute -right-4 -bottom-4 w-28 h-28 opacity-15 group-hover:opacity-30 transition-opacity pointer-events-none">
+                <div className="absolute -right-4 -bottom-4 w-28 h-28 opacity-15 group-hover:opacity-40 transition-opacity pointer-events-none">
                   <img
                     src={parsedMeta.expert_image}
                     alt={parsedMeta.expert_name}
@@ -305,46 +307,65 @@ export default function SecretPage() {
         </div>
       )}
 
-      {/* FLOATING RIGHT SIDEBAR EXPERT BANNER (MR. MINH SPEECH BUBBLE) */}
-      {filteredCodes.length > 0 && (
-        <div className="fixed bottom-6 right-6 z-40 hidden lg:flex items-end gap-3 max-w-sm animate-in fade-in slide-in-from-bottom-5 duration-300 pointer-events-auto">
-          {/* Speech Bubble */}
-          <div className="glass-panel p-4 rounded-2xl rounded-br-none border border-pink-500/40 bg-gray-950/90 shadow-2xl shadow-pink-500/20 text-xs text-gray-100 space-y-1.5 relative">
-            <div className="flex items-center justify-between gap-2 border-b border-gray-800 pb-1">
-              <span className="font-extrabold text-pink-400 flex items-center gap-1">
-                🔥 Hot Recommend
-              </span>
-              <span className="text-[10px] text-gray-400">Mr. Minh</span>
-            </div>
-            <p className="font-semibold text-white leading-relaxed">
-              &quot;Tôi đề xuất mã phim mới nhất này: <span className="text-pink-400 font-mono font-bold underline">{filteredCodes[0].code_text}</span>&quot;
-            </p>
-            <div className="flex justify-end pt-1">
-              <button
-                onClick={() => handleCopy(filteredCodes[0].id, filteredCodes[0].code_text)}
-                className="px-2.5 py-1 bg-pink-600 hover:bg-pink-500 text-white rounded-lg text-[10px] font-bold transition-all shadow"
-              >
-                {copiedId === filteredCodes[0].id ? 'Đã Copy!' : 'Copy Ngay'}
-              </button>
-            </div>
-          </div>
+      {/* FLOATING RIGHT SIDEBAR EXPERT BANNER (DYNAMIC SPEECH BUBBLE) */}
+      {filteredCodes.length > 0 && (() => {
+        const activeItem = filteredCodes.find((c) => c.id === hoveredCodeId) || filteredCodes[0];
+        let activeMeta = {
+          text: activeItem.note || 'Mã phim tuyển chọn cực hay!',
+          expert_name: 'Mr. Minh',
+          expert_image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
+        };
+        if (activeItem.note && activeItem.note.startsWith('{')) {
+          try {
+            activeMeta = JSON.parse(activeItem.note);
+          } catch (e) {}
+        }
 
-          {/* Character Cutout Avatar */}
-          <div className="relative group shrink-0">
-            <div className="w-16 h-16 rounded-2xl overflow-hidden ring-4 ring-pink-500/50 shadow-xl shadow-pink-500/30 group-hover:scale-105 transition-transform bg-gray-900">
-              <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"
-                alt="Mr. Minh Expert"
-                className="w-full h-full object-cover filter brightness-110"
-              />
+        const isCopied = copiedId === activeItem.id;
+
+        return (
+          <div className="fixed bottom-6 right-6 z-40 hidden lg:flex items-end gap-3 max-w-sm animate-in fade-in slide-in-from-bottom-5 duration-300 pointer-events-auto">
+            {/* Speech Bubble */}
+            <div className="glass-panel p-4 rounded-2xl rounded-br-none border border-pink-500/40 bg-gray-950/95 shadow-2xl shadow-pink-500/20 text-xs text-gray-100 space-y-1.5 relative">
+              <div className="flex items-center justify-between gap-2 border-b border-gray-800 pb-1">
+                <span className="font-extrabold text-pink-400 flex items-center gap-1">
+                  🔥 Đề Xuất Hot
+                </span>
+                <span className="text-[10px] text-pink-300 font-bold">{activeMeta.expert_name}</span>
+              </div>
+              <p className="font-semibold text-white leading-relaxed">
+                &quot;Tôi đề xuất mã phim mới nhất này: <span className="text-pink-400 font-mono font-bold underline">{activeItem.code_text}</span>&quot;
+              </p>
+              <p className="text-[11px] text-gray-300 italic">
+                💬 {activeMeta.text}
+              </p>
+              <div className="flex justify-end pt-1">
+                <button
+                  onClick={() => handleCopy(activeItem.id, activeItem.code_text)}
+                  className="px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-lg text-[10px] font-bold transition-all shadow"
+                >
+                  {isCopied ? 'Đã Copy!' : 'Copy Code Ngay'}
+                </button>
+              </div>
             </div>
-            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-pink-500 border-2 border-gray-950"></span>
-            </span>
+
+            {/* Character Cutout Avatar */}
+            <div className="relative group shrink-0">
+              <div className="w-16 h-16 rounded-2xl overflow-hidden ring-4 ring-pink-500/60 shadow-xl shadow-pink-500/30 group-hover:scale-105 transition-transform bg-gray-900">
+                <img
+                  src={activeMeta.expert_image}
+                  alt={activeMeta.expert_name}
+                  className="w-full h-full object-cover filter brightness-110"
+                />
+              </div>
+              <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-pink-500 border-2 border-gray-950"></span>
+              </span>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* CREATE MODAL */}
       <CreateSecretCodeModal
