@@ -15,10 +15,13 @@ import {
   User as UserIcon,
 } from 'lucide-react';
 
+import { AuthModal } from '@/components/AuthModal';
+
 export function Navbar() {
   const pathname = usePathname();
-  const { user, loading, signInWithGoogle, signOut } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const isActive = (path: string) => pathname === path;
 
@@ -109,11 +112,11 @@ export function Navbar() {
               </div>
             ) : (
               <button
-                onClick={signInWithGoogle}
+                onClick={() => setAuthModalOpen(true)}
                 className="flex items-center gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30 hover:scale-[1.02] active:scale-95"
               >
                 <LogIn className="w-4 h-4" />
-                Đăng nhập với Google
+                Đăng nhập / Đăng ký
               </button>
             )}
           </div>
@@ -189,17 +192,20 @@ export function Navbar() {
             ) : (
               <button
                 onClick={() => {
-                  signInWithGoogle();
+                  setAuthModalOpen(true);
                   setMobileMenuOpen(false);
                 }}
                 className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2.5 rounded-xl text-sm font-medium"
               >
-                <LogIn className="w-4 h-4" /> Đăng nhập với Google
+                <LogIn className="w-4 h-4" /> Đăng nhập / Đăng ký
               </button>
             )}
           </div>
         </div>
       )}
+
+      {/* Auth Modal */}
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </header>
   );
 }
